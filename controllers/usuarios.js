@@ -1,38 +1,75 @@
 const { request, response } = require('express');
+const bcrypt = require('bcryptjs');
 
-const getUsuarios = (req = request, res = response) => {
-    const {nombre, apellido} = req.query;
+
+const Usuario = require('../models/usuario');
+
+const getUsuarios = async(req = request, res = response) => {
+    const { limit = 5, desde = 0 } = req.query;
+    const query = { estado : true };
+
+    const [ total , usuarios] = await Promise.all([
+        Usuario.countDocuments(query),
+        Usuario.find(query)
+        .skip(Number(desde))
+        .limit(Number(limit))
+    ])
+
     res.json({
-        'msg':'Hello World - controlador',
-        nombre,
-        apellido
+        total,
+        usuarios
     });
 }
 
-const postUsuario = (req = request, res = response) => {
-    const body = req.body;
+const postUsuario = async(req = request, res = response) => {
+
+    const { nombre, password, correo, rol} = req.body;
+    const usuario = new Usuario( {nombre, password, correo, rol} );
+
+    //encriptar clave
+    const salt = bcrypt.genSaltSync(10);
+    usuario.password = bcrypt.hashSync(password, salt);
+
+    //guardar
+
+    usuario.save();
 
     res.json({
-        'msg':'Post user -controller',
-        body
+        'msg':'Usuario creado con exito',
+        usuario
     });
 }
 
-const putUsuario = (req = request, res = response) => {
+const putUsuario = async(req = request, res = response) => {
+    const {id} = req.params;
+    const { _id, password , google, correo, ...resto} = req.body;
+
+    if (password) {
+        //encriptar clave
+        const salt = bcrypt.genSaltSync(10);
+        resto.password = bcrypt.hashSync(password, salt);
+    }
+
+    const usuario = await Usuario.findByIdAndUpdate(id , resto);
+    res.json({
+        'msg': 'Usuario actualizado correctamente',
+        usuario
+    });
+}
+
+const deleteUsuario = async(req = request, res = response) => {
     const {id} = req.params;
 
-    res.json({
-        'msg':'Put user - controller',
-        id
-    });
-}
+    //eliminacion fisica
+    //const usuario = await Usuario.findByIdAndDelete(id);
 
-const deleteUsuario = (req = request, res = response) => {
-    const {id} = req.params;
+    //eliminacion logica
+    const usuario = await Usuario.findByIdAndUpdate( id , { estado : false} );
 
     res.json({
-        'msg':'Delete user - controller',
-        id
+        'msg':'Usuario eliminado con exito',
+        usuario
+        
     })
 }
 module.exports = {
