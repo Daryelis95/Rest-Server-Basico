@@ -28,7 +28,7 @@ const validarRoles = (...roles) => {
                 msg: 'No sea validado el token'
             });
         }
-
+        
         if (!roles.includes(req.usuario.rol)) {
 
             res.status(401).json({
