@@ -34,6 +34,9 @@ const ProductSchema = Schema({
     cantidad: {
         type: Number,
         default: 5
+    },
+    img: {
+        type: String
     }
 });
 
