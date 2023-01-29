@@ -1,7 +1,8 @@
 const express = require('express');
 var cors = require('cors');
 const { dbconnection } = require('../database/config');
-const fileUpload = require('express-fileupload')
+const fileUpload = require('express-fileupload');
+const apiRouter = require('../routes/apiRouter');
 
 class Serve {
 
@@ -25,7 +26,7 @@ class Serve {
         this.middlewares();
         
         //Ruta
-        this.routes();
+        this.app.use('/api', apiRouter);
     }
 
     async conactarDB(){
@@ -50,14 +51,14 @@ class Serve {
         }));
     }
 
-    routes() {
-        this.app.use(this.paths.auth, require('../routes/auth'));
-        this.app.use(this.paths.buscar, require('../routes/buscar'));
-        this.app.use(this.paths.categorias, require('../routes/categorias'));
-        this.app.use(this.paths.productos, require('../routes/productos'));
-        this.app.use(this.paths.uploads, require('../routes/uploads'));
-        this.app.use(this.paths.usuarios, require('../routes/usuarios'));
-    }
+    // routes() {
+    //     this.app.use(this.paths.auth, require('../routes/auth'));
+    //     this.app.use(this.paths.buscar, require('../routes/buscar'));
+    //     this.app.use(this.paths.categorias, require('../routes/categorias'));
+    //     this.app.use(this.paths.productos, require('../routes/productos'));
+    //     this.app.use(this.paths.uploads, require('../routes/uploads'));
+    //     this.app.use(this.paths.usuarios, require('../routes/usuarios'));
+    // }
 
     listen() {
         this.app.listen(this.port, () => {
