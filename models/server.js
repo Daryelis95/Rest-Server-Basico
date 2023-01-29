@@ -1,15 +1,14 @@
 const express = require('express');
 var cors = require('cors');
 const { dbconnection } = require('../database/config');
+const fileUpload = require('express-fileupload');
+const apiRouter = require('../routes/apiRouter');
 
 class Serve {
 
     constructor() {
         this.app = express();
         this.port = process.env.PORT;
-
-        this.usuariosPath = '/api/usuarios';
-        this.auth = '/api/auth';
 
         //conectar a base de datos
         this.conactarDB();
@@ -18,7 +17,7 @@ class Serve {
         this.middlewares();
         
         //Ruta
-        this.routes();
+        this.app.use('/api', apiRouter);
     }
 
     async conactarDB(){
@@ -34,11 +33,13 @@ class Serve {
 
         //directorio publico
         this.app.use(express.static('public'));
-    }
 
-    routes() {
-        this.app.use(this.auth, require('../routes/auth'));
-        this.app.use(this.usuariosPath, require('../routes/usuarios'));
+        //manejar carga de archivo
+        this.app.use(fileUpload({
+            useTempFiles : true,
+            tempFileDir : '/tmp/',
+            createParentPath: true
+        }));
     }
 
     listen() {

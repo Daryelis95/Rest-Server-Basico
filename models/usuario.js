@@ -32,7 +32,7 @@ const UsuarioSchema = Schema({
         default: false
     },
 });
-
+//excluir campos
 UsuarioSchema.methods.toJSON = function(){
     const {__v, password, _id, ...usuario} = this.toObject();
     usuario.uid = _id
